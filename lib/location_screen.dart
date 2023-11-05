@@ -90,7 +90,7 @@ class _LocationScreenState extends State<LocationScreen> {
           Expanded(
             child: StreamBuilder(
               stream: FirebaseFirestore.instance
-                  .collection('locations')
+                  .collection('locaciones')
                   .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (!snapshot.hasData) {
@@ -99,15 +99,18 @@ class _LocationScreenState extends State<LocationScreen> {
                 return ListView.builder(
                   itemCount: snapshot.data?.docs.length,
                   itemBuilder: (context, index) {
+                    DocumentSnapshot doc = snapshot.data!.docs[index];
+                    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                    String name = data.containsKey('name') ? data['name'].toString() : '';
+                    String latitude = data.containsKey('latitude') ? data['latitude'].toString() : '';
+                    String longitude = data.containsKey('longitude') ? data['longitude'].toString() : '';
+
                     return ListTile(
-                      title:
-                          Text(snapshot.data!.docs[index]['name'].toString()),
+                      title: Text(name),
                       subtitle: Row(
                         children: [
-                          Text(snapshot.data!.docs[index]['latitude']
-                              .toString()),
-                          Text(snapshot.data!.docs[index]['longitude']
-                              .toString()),
+                          Text(latitude),
+                          Text(longitude),
                         ],
                       ),
                       trailing: IconButton(
@@ -135,12 +138,12 @@ class _LocationScreenState extends State<LocationScreen> {
     try {
       final loc.LocationData _locationResult = await location.getLocation();
       await FirebaseFirestore.instance
-          .collection('locations')
+          .collection('locaciones')
           .doc('user1')
           .set({
         'latitude': _locationResult.latitude,
         'longitude': _locationResult.longitude,
-        'name': 'Valentina',
+        'name': 'josemaria',
       }, SetOptions(merge: true));
     } catch (e) {
       print(e);
@@ -156,12 +159,12 @@ class _LocationScreenState extends State<LocationScreen> {
       });
     }).listen((loc.LocationData currentLocation) async {
       await FirebaseFirestore.instance
-          .collection('locations')
+          .collection('locaciones')
           .doc('user1')
           .set({
         'latitude': currentLocation.latitude,
         'longitude': currentLocation.longitude,
-        'name': 'Valentina',
+        'name': 'josemaria',
       }, SetOptions(merge: true));
     });
   }

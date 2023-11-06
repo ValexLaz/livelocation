@@ -95,12 +95,11 @@ class SaveLocationScreen extends StatefulWidget {
 
 class _SaveLocationScreenState extends State<SaveLocationScreen> {
   final _controller = TextEditingController();
-
 void _saveLocation() async {
   final position = widget.position;
 
   // Get the current document
-  DocumentSnapshot doc = await FirebaseFirestore.instance.collection('locations').doc('user1').get();
+  DocumentSnapshot doc = await FirebaseFirestore.instance.collection('locaciones').doc('user1').get();
 
   Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
   int counter = doc.exists && data?.containsKey('counter') == true ? (data?['counter'] ?? 0) : 0;  
@@ -109,10 +108,12 @@ void _saveLocation() async {
   String nameKey = 'nombre$counter';
   String coordinatesKey = 'coordenadas$counter';
 
-  FirebaseFirestore.instance.collection('locations').doc('user1').set({
+  String coordinatesString = '${position.latitude},${position.longitude}';
+
+  FirebaseFirestore.instance.collection('locaciones').doc('user1').set({
     'counter': counter,
     nameKey: _controller.text,
-    coordinatesKey: GeoPoint(position.latitude, position.longitude),
+    coordinatesKey: coordinatesString,
   }, SetOptions(merge: true));
 }
    @override

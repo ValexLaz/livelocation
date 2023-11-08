@@ -14,6 +14,7 @@ class MyMap extends StatefulWidget {
 }
 
 class _MyMapState extends State<MyMap> {
+  Set<Marker> _markers = {}; // Define _markers
   final loc.Location location = loc.Location();
   late GoogleMapController _controller;
   bool _markerAdded = false;
@@ -38,7 +39,7 @@ class _MyMapState extends State<MyMap> {
   }
 
   void _addMarker(LatLng position) {
-    BlocProvider.of<MyMapBloc>(context).add(AddMarkerEvent(position));
+    BlocProvider.of<MyMapBloc>(context).add(AddMarkerEvent(position, context));
   }
 
   @override
@@ -56,22 +57,31 @@ class _MyMapState extends State<MyMap> {
     );
 
     return Scaffold(
-      body: BlocListener<MyMapBloc, MyMapState>(
+      body: BlocConsumer<MyMapBloc, MyMapState>(
         listener: (context, state) {
           if (state is MarkersUpdated) {
-            // Aquí puedes realizar acciones después de actualizar los marcadores
+            // Actualiza los marcadores del mapa
+            setState(() {
+              _markers = state.markers;
+            });
           }
         },
-        child: GoogleMap(
-          mapType: MapType.normal,
-          initialCameraPosition: initialPosition,
-          onMapCreated: (GoogleMapController controller) {
-            _controller = controller;
-          },
-          onLongPress: _addMarker,
-          myLocationEnabled:
-              true, // para mostrar el botón de la ubicación actual
-        ),
+        builder: (context, state) {
+          return GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: initialPosition,
+            onMapCreated: (GoogleMapController controller) {
+              _controller = controller;
+            },
+            onLongPress: (LatLng position) {
+              // Envía un AddMarkerEvent al BLoC cuando se presiona durante mucho tiempo en el mapa
+              context.read<MyMapBloc>().add(AddMarkerEvent(position, context));
+            },
+            markers: _markers, // Usa los marcadores actualizados
+            myLocationEnabled:
+                true, // para mostrar el botón de la ubicación actual
+          );
+        },
       ),
     );
   }

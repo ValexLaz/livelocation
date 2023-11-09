@@ -4,9 +4,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart' as loc;
-import 'package:livelocation/mymap/bloc/mymap_bloc.dart'; // Asegúrate de importar tu BLoC aquí
-import 'package:livelocation/mymap/bloc/mymap_event.dart'; // Asegúrate de importar tus eventos aquí
+import 'package:livelocation/mymap/bloc/mymap_bloc.dart';
+import 'package:livelocation/mymap/bloc/mymap_event.dart';
 import 'package:livelocation/mymap/bloc/mymap_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MyMap extends StatefulWidget {
   @override
@@ -60,9 +61,10 @@ class _MyMapState extends State<MyMap> {
       body: BlocConsumer<MyMapBloc, MyMapState>(
         listener: (context, state) {
           if (state is MarkersUpdated) {
-            // Actualiza los marcadores del mapa
             setState(() {
               _markers = state.markers;
+              _markerAdded =
+                  false; // Establecer _markerAdded en false cuando se actualizan los marcadores
             });
           }
         },
@@ -74,8 +76,14 @@ class _MyMapState extends State<MyMap> {
               _controller = controller;
             },
             onLongPress: (LatLng position) {
-              // Envía un AddMarkerEvent al BLoC cuando se presiona durante mucho tiempo en el mapa
-              context.read<MyMapBloc>().add(AddMarkerEvent(position, context));
+              if (!_markerAdded) {
+                context
+                    .read<MyMapBloc>()
+                    .add(AddMarkerEvent(position, context));
+                setState(() {
+                  _markerAdded = true;
+                });
+              }
             },
             markers: _markers, // Usa los marcadores actualizados
             myLocationEnabled:
@@ -99,54 +107,52 @@ class SaveLocationScreen extends StatefulWidget {
 class _SaveLocationScreenState extends State<SaveLocationScreen> {
   final _controller = TextEditingController();
 
-  void _saveLocation() async {
-    final position = widget.position;
-
-    // Get the current document
-    DocumentSnapshot doc = await FirebaseFirestore.instance
-        .collection('locaciones')
-        .doc('user1')
-        .get();
-
-    Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-    int counter = doc.exists && data?.containsKey('counter') == true
-        ? (data?['counter'] ?? 0)
-        : 0;
-    counter++; // Increment the counter
-
-    String nameKey = 'nombre$counter';
-    String coordinatesKey = 'coordenadas$counter';
-
-    String coordinatesString = '${position.latitude},${position.longitude}';
-
-    FirebaseFirestore.instance.collection('locaciones').doc('user1').set({
-      'counter': counter,
-      nameKey: _controller.text,
-      coordinatesKey: coordinatesString,
-    }, SetOptions(merge: true));
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Save Location'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
-            ElevatedButton(
-              child: Text('Save'),
-              onPressed: _saveLocation,
-            ),
-          ],
+    return BlocProvider(
+      create: (context) => MyMapBloc(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Save Location'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(labelText: 'Name'),
+              ),
+              ElevatedButton(
+                child: Text('Save'),
+                onPressed: () {
+                  _saveLocation(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _saveLocation(BuildContext context) async {
+    final position = widget.position;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (uid != null) {
+      String coordinatesString = '${position.latitude},${position.longitude}';
+      await FirebaseFirestore.instance.collection('guardados').add({
+        'longitude': position.longitude.toString(),
+        'latitude': position.latitude.toString(),
+        'uid': uid,
+        'name': _controller.text,
+      });
+      // Asegúrate de que `_markerAdded` se establece en false al guardar
+      context.read<MyMapBloc>().add(ClearMarkersEvent());
+      Navigator.pop(context); // Volver al mapa
+    } else {
+      print('No se pudo guardar la ubicación');
+    }
   }
 }

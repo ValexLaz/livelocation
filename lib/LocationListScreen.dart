@@ -2,16 +2,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:livelocation/MapaLista.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LocationListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    String? uid = FirebaseAuth.instance.currentUser?.uid;
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de Ubicaciones'),
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('locaciones').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('guardados')
+            .where('uid', isEqualTo: uid)
+            .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
@@ -22,21 +27,15 @@ class LocationListScreen extends StatelessWidget {
               DocumentSnapshot doc = snapshot.data!.docs[index];
               Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-              List<Widget> cards = [];
-              int counter = 1;
-              while (true) {
-                String nameKey = 'nombre$counter';
-                String coordinatesKey = 'coordenadas$counter';
-                if (!data.containsKey(nameKey) || !data.containsKey(coordinatesKey)) {
-                  break;
-                }
+              String? title = data['name'];
+              String? coordinates = '${data['latitude']},${data['longitude']}';
 
-                String title = data[nameKey].toString();
-                String coordinates = data[coordinatesKey].toString();
+              if (title != null && coordinates != null) {
                 List<String> latLng = coordinates.split(",");
-                LatLng position = LatLng(double.parse(latLng[0]), double.parse(latLng[1]));
+                LatLng position =
+                    LatLng(double.parse(latLng[0]), double.parse(latLng[1]));
 
-                cards.add(Card(
+                return Card(
                   child: ListTile(
                     title: Text(title),
                     subtitle: Text('Coordenadas: $coordinates'),
@@ -44,17 +43,16 @@ class LocationListScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MapaLista(initialPosition: position),
+                          builder: (context) =>
+                              MapaLista(initialPosition: position),
                         ),
                       );
                     },
                   ),
-                ));
-
-                counter++;
+                );
+              } else {
+                return Container(); // Omitir elementos con datos faltantes
               }
-
-              return Column(children: cards);
             },
           );
         },

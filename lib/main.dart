@@ -5,10 +5,10 @@ import 'package:livelocation/location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:livelocation/mymap/bloc/mymap_bloc.dart'; // Asegúrate de importar tu BLoC aquí
-import 'package:livelocation/mymap/bloc/mymap_event.dart'; // Asegúrate de importar tus eventos aquí
-import 'package:livelocation/mymap/bloc/mymap_state.dart'; // Asegúrate de importar tus estados aquí
-import 'package:livelocation/mymap/ui/mymap.dart'; // Asegúrate de importar tu widget MyMap aquí
+import 'package:livelocation/mymap/bloc/mymap_bloc.dart'; 
+import 'package:livelocation/mymap/bloc/mymap_event.dart'; 
+import 'package:livelocation/mymap/bloc/mymap_state.dart'; 
+import 'package:livelocation/mymap/ui/mymap.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

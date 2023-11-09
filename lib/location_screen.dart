@@ -1,17 +1,26 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:livelocation/LocationListScreen.dart';
 import 'package:livelocation/mymap/ui/mymap.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:livelocation/mymap/bloc/mymap_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MaterialApp(home: LocationScreen()));
+  runApp(
+    BlocProvider(
+      create: (context) => MyMapBloc(),
+      child: MaterialApp(
+        home: LocationScreen(),
+      ),
+    ),
+  );
 }
 
 class LocationScreen extends StatefulWidget {
@@ -22,6 +31,7 @@ class LocationScreen extends StatefulWidget {
 }
 
 class _LocationScreenState extends State<LocationScreen> {
+  MyMapBloc? _myMapBloc;
   final loc.Location location = loc.Location();
   StreamSubscription<loc.LocationData>? _locationSubscription;
   loc.LocationData? _currentLocation;
@@ -30,7 +40,14 @@ class _LocationScreenState extends State<LocationScreen> {
   void initState() {
     super.initState();
     _requestPermission();
-    _getCurrentLocation(); // Obtener la ubicación actual al iniciar la pantalla
+    _getCurrentLocation();
+    _myMapBloc ??= MyMapBloc();
+  }
+
+  @override
+  void dispose() {
+    BlocProvider.of<MyMapBloc>(context).close();
+    super.dispose();
   }
 
   _getCurrentLocation() async {
@@ -46,117 +63,125 @@ class _LocationScreenState extends State<LocationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Live Location App'),
-      ),
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => MyMap(),
+    return BlocProvider.value(
+        value: _myMapBloc!,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Live Location App'),
+          ),
+          body: Column(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MyMap(),
+                    ),
+                  );
+                },
+                child: Text('Ver mi ubicación en el mapa'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => LocationListScreen(),
+                    ),
+                  );
+                },
+                child: Text('Ver lista de ubicaciones'),
+              ),
+              TextButton(
+                onPressed: () {
+                  _getLocation();
+                },
+                child: Text('add location'),
+              ),
+              TextButton(
+                onPressed: () {
+                  _listenLocation();
+                },
+                child: Text('enable location'),
+              ),
+              TextButton(
+                onPressed: () {
+                  _stopListening();
+                },
+                child: Text('stop location'),
+              ),
+              if (_currentLocation !=
+                  null) // Muestra las coordenadas si están disponibles
+                Column(
+                  children: [
+                    Text("Correo: ${FirebaseAuth.instance.currentUser?.email}"),
+                    Text("Latitud: ${_currentLocation!.latitude}"),
+                    Text("Longitud: ${_currentLocation!.longitude}"),
+                  ],
                 ),
-              );
-            },
-            child: Text('Ver mi ubicación en el mapa'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => LocationListScreen(),
-                ),
-              );
-            },
-            child: Text('Ver lista de ubicaciones'),
-          ),
-          TextButton(
-            onPressed: () {
-              _getLocation();
-            },
-            child: Text('add my location'),
-          ),
-          TextButton(
-            onPressed: () {
-              _listenLocation();
-            },
-            child: Text('enable location'),
-          ),
-          TextButton(
-            onPressed: () {
-              _stopListening();
-            },
-            child: Text('stop location'),
-          ),
-          if (_currentLocation !=
-              null) // Muestra las coordenadas si están disponibles
-            Column(
-              children: [
-                Text("Latitud: ${_currentLocation!.latitude}"),
-                Text("Longitud: ${_currentLocation!.longitude}"),
-              ],
-            ),
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('locaciones')
-                  .snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                return ListView.builder(
-                  itemCount: snapshot.data?.docs.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot doc = snapshot.data!.docs[index];
-                    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                    String name = data.containsKey('name') ? data['name'].toString() : '';
-                    String latitude = data.containsKey('latitude') ? data['latitude'].toString() : '';
-                    String longitude = data.containsKey('longitude') ? data['longitude'].toString() : '';
+              Expanded(
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('ubicaciones')
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    return ListView.builder(
+                      itemCount: snapshot.data?.docs.length,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot doc = snapshot.data!.docs[index];
+                        Map<String, dynamic> data =
+                            doc.data() as Map<String, dynamic>;
+                        String name = data.containsKey('name')
+                            ? data['name'].toString()
+                            : '';
+                        String latitude = data.containsKey('latitude')
+                            ? data['latitude'].toString()
+                            : '';
+                        String longitude = data.containsKey('longitude')
+                            ? data['longitude'].toString()
+                            : '';
 
-                    return ListTile(
-                      title: Text(name),
-                      subtitle: Row(
-                        children: [
-                          Text(latitude),
-                          Text(longitude),
-                        ],
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.directions),
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => MyMap(),
-                            ),
-                          );
-                        },
-                      ),
+                        return ListTile(
+                          title: Text(name),
+                          subtitle: Row(
+                            children: [
+                              Text(latitude),
+                              Text(longitude),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.directions),
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => MyMap(),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-        
-      ),
-    );
+        ));
   }
 
   _getLocation() async {
     try {
       final loc.LocationData _locationResult = await location.getLocation();
-      await FirebaseFirestore.instance
-          .collection('locaciones')
-          .doc('user1')
-          .set({
+      String uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+      await FirebaseFirestore.instance.collection('ubicaciones').add({
         'latitude': _locationResult.latitude,
         'longitude': _locationResult.longitude,
-        'name': 'josemaria',
-      }, SetOptions(merge: true));
+        'uid': uid,
+        'created_at': FieldValue.serverTimestamp(),
+      });
     } catch (e) {
       print(e);
     }
@@ -170,14 +195,9 @@ class _LocationScreenState extends State<LocationScreen> {
         _locationSubscription = null;
       });
     }).listen((loc.LocationData currentLocation) async {
-      await FirebaseFirestore.instance
-          .collection('locaciones')
-          .doc('user1')
-          .set({
-        'latitude': currentLocation.latitude,
-        'longitude': currentLocation.longitude,
-        'name': 'josemaria',
-      }, SetOptions(merge: true));
+      setState(() {
+        _currentLocation = currentLocation;
+      });
     });
   }
 

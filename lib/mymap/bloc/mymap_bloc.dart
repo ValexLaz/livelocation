@@ -10,6 +10,7 @@ class MyMapBloc extends Bloc<MyMapEvent, MyMapState> {
 
   MyMapBloc() : super(MyMapInitial()) {
     on<AddMarkerEvent>(onAddMarker);
+    on<ClearMarkersEvent>(onClearMarkers);
   }
 
   void onAddMarker(AddMarkerEvent event, Emitter<MyMapState> emit) async {
@@ -27,6 +28,11 @@ class MyMapBloc extends Bloc<MyMapEvent, MyMapState> {
       },
     );
     markers.add(newMarker);
+    emit(MarkersUpdated(markers));
+  }
+
+  void onClearMarkers(ClearMarkersEvent event, Emitter<MyMapState> emit) async {
+    markers.clear();
     emit(MarkersUpdated(markers));
   }
 }

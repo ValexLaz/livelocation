@@ -2,30 +2,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:livelocation/location_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:livelocation/mymap/bloc/mymap_bloc.dart'; 
-import 'package:livelocation/mymap/bloc/mymap_event.dart'; 
-import 'package:livelocation/mymap/bloc/mymap_state.dart'; 
-import 'package:livelocation/mymap/ui/mymap.dart'; 
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.web,
+  );
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => MyMapBloc(), // Configura tu BLoC aquí
-      child: MaterialApp(
-        home: HomePage(),
-      ),
+    return MaterialApp(
+      home: HomePage(),
     );
   }
 }

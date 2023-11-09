@@ -5,6 +5,19 @@ import 'package:livelocation/MapaLista.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LocationListScreen extends StatelessWidget {
+  void _eliminarUbicacion(String documentId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('guardados')
+          .doc(documentId)
+          .delete();
+      // La ubicación se eliminó con éxito
+    } catch (e) {
+      print('Error al eliminar la ubicación: $e');
+      // Ocurrió un error al eliminar la ubicación
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
@@ -39,6 +52,13 @@ class LocationListScreen extends StatelessWidget {
                   child: ListTile(
                     title: Text(title),
                     subtitle: Text('Coordenadas: $coordinates'),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _eliminarUbicacion(doc
+                            .id); // Llama a la función para eliminar ubicación
+                      },
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,

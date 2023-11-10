@@ -18,3 +18,13 @@ class MarkersUpdated extends MyMapState {
   @override
   List<Object> get props => [markers];
 }
+
+// Agrega este nuevo estado
+class MarkerAddedState extends MyMapState {
+  final bool added;
+
+  MarkerAddedState(this.added);
+
+  @override
+  List<Object> get props => [added];
+}

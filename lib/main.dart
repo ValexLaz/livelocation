@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MyMapBloc(), // Configura tu BLoC aquí
+      create: (context) => MyMapBloc(),
       child: MaterialApp(
         home: HomePage(),
       ),

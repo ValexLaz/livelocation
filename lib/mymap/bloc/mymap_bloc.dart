@@ -7,18 +7,20 @@ import 'package:livelocation/mymap/ui/mymap.dart';
 
 class MyMapBloc extends Bloc<MyMapEvent, MyMapState> {
   Set<Marker> markers = {};
+  bool _markerAdded = false; // Agrega esta línea
 
   MyMapBloc() : super(MyMapInitial()) {
     on<AddMarkerEvent>(onAddMarker);
     on<ClearMarkersEvent>(onClearMarkers);
+    on<MarkerAddedEvent>(onMarkerAdded); // Agrega esta línea
   }
 
   void onAddMarker(AddMarkerEvent event, Emitter<MyMapState> emit) async {
+    markers.clear();
     final newMarker = Marker(
       markerId: MarkerId(event.position.toString()),
       position: event.position,
       onTap: () {
-        // Navega a SaveLocationScreen cuando se presiona el marcador
         Navigator.push(
           event.context,
           MaterialPageRoute(
@@ -34,5 +36,11 @@ class MyMapBloc extends Bloc<MyMapEvent, MyMapState> {
   void onClearMarkers(ClearMarkersEvent event, Emitter<MyMapState> emit) async {
     markers.clear();
     emit(MarkersUpdated(markers));
+  }
+
+  // Agrega esta función
+  void onMarkerAdded(MarkerAddedEvent event, Emitter<MyMapState> emit) {
+    _markerAdded = event.added;
+    emit(MarkerAddedState(_markerAdded));
   }
 }

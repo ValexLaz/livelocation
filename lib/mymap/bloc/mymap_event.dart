@@ -20,3 +20,12 @@ class ClearMarkersEvent extends MyMapEvent {
   @override
   List<Object> get props => [];
 }
+
+class MarkerAddedEvent extends MyMapEvent {
+  final bool added;
+
+  MarkerAddedEvent(this.added);
+
+  @override
+  List<Object> get props => [added];
+}

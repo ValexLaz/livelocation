@@ -35,21 +35,35 @@ class LocationListScreen extends StatelessWidget {
                 LatLng position =
                     LatLng(double.parse(latLng[0]), double.parse(latLng[1]));
 
-                return Card(
-                  child: ListTile(
-                    title: Text(title),
-                    subtitle: Text('Coordenadas: $coordinates'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              MapaLista(initialPosition: position),
-                        ),
-                      );
-                    },
+              return Card(
+                child: ListTile(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(title),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          FirebaseFirestore.instance
+                          .collection('guardados')
+                          .doc(doc.id)
+                          .delete();
+                        },
+                      ),
+                    ],
                   ),
-                );
+                  subtitle: Text('Coordenadas: $coordinates'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            MapaLista(initialPosition: position),
+                      ),
+                    );
+                  },
+                ),
+              );
               } else {
                 return Container(); // Omitir elementos con datos faltantes
               }

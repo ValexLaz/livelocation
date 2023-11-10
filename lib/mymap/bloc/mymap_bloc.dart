@@ -17,6 +17,7 @@ class MyMapBloc extends Bloc<MyMapEvent, MyMapState> {
 
   void onAddMarker(AddMarkerEvent event, Emitter<MyMapState> emit) async {
     markers.clear();
+    _markerAdded = true;
     final newMarker = Marker(
       markerId: MarkerId(event.position.toString()),
       position: event.position,
@@ -30,12 +31,12 @@ class MyMapBloc extends Bloc<MyMapEvent, MyMapState> {
       },
     );
     markers.add(newMarker);
-    emit(MarkersUpdated(markers));
+    emit(MarkersUpdated(markers, _markerAdded));
   }
 
   void onClearMarkers(ClearMarkersEvent event, Emitter<MyMapState> emit) async {
     markers.clear();
-    emit(MarkersUpdated(markers));
+    emit(MarkersUpdated(markers, _markerAdded));
   }
 
   // Agrega esta función

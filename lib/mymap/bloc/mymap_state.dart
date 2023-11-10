@@ -12,8 +12,9 @@ class MyMapInitial extends MyMapState {
 
 class MarkersUpdated extends MyMapState {
   final Set<Marker> markers;
+  final bool added;
 
-  MarkersUpdated(this.markers);
+  MarkersUpdated(this.markers, this.added);
 
   @override
   List<Object> get props => [markers];

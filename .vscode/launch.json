@@ -1,0 +1,48 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "eidan_app",
+            "cwd": "Users/eidan/AndroidStudioProjects/eidan_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "eidan_app (profile mode)",
+            "cwd": "Users/eidan/AndroidStudioProjects/eidan_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "eidan_app (release mode)",
+            "cwd": "Users/eidan/AndroidStudioProjects/eidan_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "qradm",
+            "cwd": "Users/eidan/AndroidStudioProjects/qradm",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "qradm (profile mode)",
+            "cwd": "Users/eidan/AndroidStudioProjects/qradm",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "qradm (release mode)",
+            "cwd": "Users/eidan/AndroidStudioProjects/qradm",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

@@ -2,13 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:livelocation/location_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:livelocation/mymap/bloc/mymap_bloc.dart'; 
-import 'package:livelocation/mymap/bloc/mymap_event.dart'; 
-import 'package:livelocation/mymap/bloc/mymap_state.dart'; 
-import 'package:livelocation/mymap/ui/mymap.dart'; 
+import 'package:livelocation/singUp.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,81 +89,103 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Live location",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 28.0,
-              fontWeight: FontWeight.bold,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Live location",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 28.0,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const Text(
-            "Login to Live Location Mobile App",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 44.0,
-              fontWeight: FontWeight.bold,
+            const Text(
+              "Login to Live Location Mobile App",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 44.0,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 44.0),
-          TextField(
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              hintText: "Email",
-              prefix: Icon(Icons.email, color: Colors.black),
+            const SizedBox(height: 44.0),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                hintText: "Email",
+                prefix: Icon(Icons.email, color: Colors.black),
+              ),
             ),
-          ),
-          const SizedBox(height: 26.0),
-          TextField(
-            controller: _passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              hintText: "Password",
-              prefix: Icon(Icons.lock, color: Colors.black),
+            const SizedBox(height: 26.0),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                hintText: "Password",
+                prefix: Icon(Icons.lock, color: Colors.black),
+              ),
             ),
-          ),
-          const SizedBox(height: 12.0),
-          const Text(
-            "Forgot yopu password?",
-            style: TextStyle(color: Colors.blue),
-          ),
-          const SizedBox(height: 88.0),
-          Container(
-            width: double.infinity,
-            child: RawMaterialButton(
-              fillColor: const Color.fromARGB(255, 222, 155, 236),
-              elevation: 0.0,
-              padding: const EdgeInsets.symmetric(vertical: 20.0),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0)),
-              onPressed: () async {
-                User? user = await loginUsingEmailPassword(
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                    context: context);
-                print(user);
-                if (user != null) {
+            const SizedBox(height: 12.0),
+            const Text(
+              "Forgot yopu password?",
+              style: TextStyle(color: Colors.blue),
+            ),
+            const SizedBox(height: 88.0),
+            Container(
+              width: double.infinity,
+              child: RawMaterialButton(
+                fillColor: const Color.fromARGB(255, 222, 155, 236),
+                elevation: 0.0,
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0)),
+                onPressed: () async {
+                  User? user = await loginUsingEmailPassword(
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                      context: context);
+                  print(user);
+                  if (user != null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LocationScreen()));
+                  } else {
+                    print("Login failed");
+                  }
+                },
+                child: const Text("Login",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                    )),
+              ),
+            ),
+            const SizedBox(height: 28.0),
+            Container(
+              width: double.infinity,
+              child: RawMaterialButton(
+                fillColor: const Color.fromARGB(255, 222, 155, 236),
+                elevation: 0.0,
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0)),
+                onPressed: () async {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => LocationScreen()));
-                } else {
-                  print("Login failed");
-                }
-              },
-              child: const Text("Login",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                  )),
+                      context, MaterialPageRoute(builder: (context) => SingUp()));
+                },
+                child: const Text("SinUp",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                    )),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

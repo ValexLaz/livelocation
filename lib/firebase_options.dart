@@ -63,6 +63,16 @@ class DefaultFirebaseOptions {
     storageBucket: 'livelocation-a9edd.appspot.com',
   );
 
+  static const FirebaseOptions linux = FirebaseOptions(
+    apiKey: 'AIzaSyB6m8OjieQaSs5n9OP6nbKdYTzaCyrAvKg',
+    appId: '1:920496785022:ios:e56bcc17f149752044fa2f',
+    messagingSenderId: '920496785022',
+    projectId: 'livelocation-a9edd',
+    storageBucket: 'livelocation-a9edd.appspot.com',
+    iosBundleId: 'com.example.livelocation',
+  );
+
+
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyB6m8OjieQaSs5n9OP6nbKdYTzaCyrAvKg',
     appId: '1:920496785022:ios:e56bcc17f149752044fa2f',

@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:livelocation/Amigos/UI/amigos.dart';
 import 'package:livelocation/LocationListScreen.dart';
+import 'package:livelocation/control_estado/Control.dart';
 import 'package:livelocation/mymap.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
@@ -46,58 +48,13 @@ class _LocationScreenState extends State<LocationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    var scaffold = Scaffold(
       appBar: AppBar(
         title: Text('Live Location App'),
       ),
       body: Column(
         children: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => MyMap(),
-                ),
-              );
-            },
-            child: Text('Ver mi ubicación en el mapa'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => LocationListScreen(),
-                ),
-              );
-            },
-            child: Text('Ver lista de ubicaciones'),
-          ),
-          TextButton(
-            onPressed: () {
-              _getLocation();
-            },
-            child: Text('add my location'),
-          ),
-          TextButton(
-            onPressed: () {
-              _listenLocation();
-            },
-            child: Text('enable location'),
-          ),
-          TextButton(
-            onPressed: () {
-              _stopListening();
-            },
-            child: Text('stop location'),
-          ),
-          if (_currentLocation !=
-              null) // Muestra las coordenadas si están disponibles
-            Column(
-              children: [
-                Text("Latitud: ${_currentLocation!.latitude}"),
-                Text("Longitud: ${_currentLocation!.longitude}"),
-              ],
-            ),
+
           Expanded(
             child: StreamBuilder(
               stream: FirebaseFirestore.instance
@@ -140,10 +97,55 @@ class _LocationScreenState extends State<LocationScreen> {
               },
             ),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => MyMap(),
+                ),
+              );
+            },
+            child: Text('Ver mi ubicación en el mapa'),
+          ),
+          TextButton(
+            onPressed: () {
+              _getLocation();
+            },
+            child: Text('add my location'),
+          ),
+
+          Row(
+        children: [
+         ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => amigos(),
+                ),
+              );
+            },
+            child: Text('Buscar Amigos'),
+          ),
+          SizedBox(
+            width: 85, // Ajusta el valor según la separación deseada
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => control(),
+                ),
+              );
+            },
+            child: Text('Control de estado'),
+          ),
         ],
-        
+      ),
+        ],
       ),
     );
+    return scaffold;
+    
   }
 
   _getLocation() async {
@@ -199,3 +201,5 @@ class _LocationScreenState extends State<LocationScreen> {
     }
   }
 }
+
+

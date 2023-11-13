@@ -71,26 +71,20 @@ class _LocationScreenState extends State<LocationScreen> {
           ),
           body: Column(
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => MyMap(),
-                    ),
-                  );
-                },
-                child: Text('Ver mi ubicación en el mapa'),
+              
+              if (_currentLocation !=
+                null) // Muestra las coordenadas si están disponibles
+                Column(
+                children: [
+                  Text("Correo: ${FirebaseAuth.instance.currentUser?.email}"),
+                  Text("Latitud: ${_currentLocation!.latitude}"),
+                  Text("Longitud: ${_currentLocation!.longitude}"),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => LocationListScreen(),
-                    ),
-                  );
-                },
-                child: Text('Ver lista de ubicaciones'),
-              ),
+              
+                SizedBox(
+                  height: 16, 
+                ),
               TextButton(
                 onPressed: () {
                   _getLocation();
@@ -109,15 +103,41 @@ class _LocationScreenState extends State<LocationScreen> {
                 },
                 child: Text('stop location'),
               ),
-              if (_currentLocation !=
-                  null) // Muestra las coordenadas si están disponibles
-                Column(
-                  children: [
-                    Text("Correo: ${FirebaseAuth.instance.currentUser?.email}"),
-                    Text("Latitud: ${_currentLocation!.latitude}"),
-                    Text("Longitud: ${_currentLocation!.longitude}"),
-                  ],
-                ),
+
+              Row(
+                children: [
+                  
+              SizedBox(
+                width: 10, // Ajusta el valor según la separación deseada
+              ),
+
+                  ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MyMap(),
+                    ),
+                  );
+                },
+                child: Text('  Ver mi ubicación  '),
+              ),
+
+              SizedBox(
+                width: 25, // Ajusta el valor según la separación deseada
+              ),
+
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => LocationListScreen(),
+                    ),
+                  );
+                },
+                child: Text('lista de ubicaciones'),
+              ),
+                ],
+              ),
               Expanded(
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance
